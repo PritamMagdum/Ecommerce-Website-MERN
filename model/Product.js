@@ -5,6 +5,7 @@ const productSchema = new Schema({
   title: {
     type: String,
     required: true,
+    unique: true,
   },
   description: {
     type: String,
@@ -17,12 +18,12 @@ const productSchema = new Schema({
   },
   discountPercentage: {
     type: Number,
-    min: [0, "wrong min price"],
-    max: [100, "wrong max price"],
+    min: [1, "wrong min discount"],
+    max: [100, "wrong max discount"],
   },
   rating: {
     type: Number,
-    min: [1, "wrong min rating"],
+    min: [0, "wrong min rating"],
     max: [5, "wrong max rating"],
     default: 0,
   },
@@ -39,10 +40,26 @@ const productSchema = new Schema({
     min: [0, "wrong min stock"],
     default: 0,
   },
+  thumbnail: {
+    type: String,
+    required: true,
+  },
   images: {
     type: [String],
     required: true,
   },
 });
 
+const virtual = productSchema.virtual("id");
+virtual.get(function () {
+  return this._id;
+});
+
+productSchema.set("toJSON", {
+  virtuals: true,
+  versionKey: false,
+  transform: function (doc, ret) {
+    delete ret._id;
+  },
+});
 exports.Product = mongoose.model("Product", productSchema);
