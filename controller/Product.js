@@ -56,3 +56,14 @@ exports.fetchAllProducts = async (req, res) => {
     res.status(400).json(err);
   }
 };
+
+exports.fetchProductById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const product = await Product.findById(id);
+    res.status(201).json(product);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
