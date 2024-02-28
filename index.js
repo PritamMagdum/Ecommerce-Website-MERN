@@ -1,17 +1,15 @@
 const express = require("express");
 const server = express();
 const mongoose = require("mongoose");
-const { ceateProduct } = require("./controller/Product");
+const productRouters = require("./routes/Products");
 
 // Middlewares
-
 server.use(express.json()); // to parse req.body
+server.use("/products", productRouters.router);
 
 server.get("/", (req, res) => {
   res.json({ status: "success" });
 });
-
-server.post("/products", ceateProduct);
 
 main().catch((err) => console.log(err));
 
