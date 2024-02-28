@@ -8,3 +8,14 @@ exports.fetchBrands = async (req, res) => {
     res.status(400).json(err);
   }
 };
+
+exports.createBrand = async (req, res) => {
+  // This Product we have to get from API body
+  const brand = new Brand(req.body);
+  try {
+    const response = await Brand.save();
+    res.status(201).json(response);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
