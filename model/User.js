@@ -38,4 +38,4 @@ userSchema.set("toJSON", {
     delete ret._id;
   },
 });
-exports.Brand = mongoose.model("Brand", userSchema);
+exports.User = mongoose.model("User", userSchema);
