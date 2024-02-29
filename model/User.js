@@ -11,18 +11,19 @@ const userSchema = new Schema({
     type: String,
     required: true,
   },
-  roel: {
+  role: {
     type: String,
     required: true,
+    default: "user",
   },
   addresses: {
-    type: [Mixed],
+    type: [Schema.Types.Mixed],
   },
   name: {
     type: String,
   },
   orders: {
-    type: [Mixed],
+    type: [Schema.Types.Mixed],
   },
 });
 

@@ -5,7 +5,7 @@ const productsRouter = require("./routes/Products");
 const brandsRouter = require("./routes/Brands");
 const categoriesRouter = require("./routes/Categories");
 const usersRouter = require("./routes/Users");
-const authRouter = require("/");
+const authRouter = require("./routes/Auth");
 
 // Middlewares
 const cors = require("cors");
