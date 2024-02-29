@@ -23,3 +23,16 @@ exports.addToCart = async (req, res) => {
     res.status(400).json(err);
   }
 };
+
+exports.updateCart = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const cart = await Cart.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    res.status(201).json(cart);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
