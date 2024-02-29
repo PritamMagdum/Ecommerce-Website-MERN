@@ -1,9 +1,18 @@
 const express = require("express");
-const { addToCart, fetchCartByUser } = require("../controller/Cart");
+const {
+  addToCart,
+  fetchCartByUser,
+  deleteFromCart,
+  updateCart,
+} = require("../controller/Cart");
 
 const router = express.Router();
 
 // /produts is already added in the base path so no need to add
-router.post("/", addToCart).get("/", fetchCartByUser);
+router
+  .post("/", addToCart)
+  .get("/", fetchCartByUser)
+  .delete("/:id", deleteFromCart)
+  .patch("/:id", updateCart);
 
 exports.router = router;
