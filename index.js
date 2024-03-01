@@ -5,6 +5,7 @@ const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
+const crypto = require("crypto");
 
 const productsRouter = require("./routes/Products");
 const brandsRouter = require("./routes/Brands");
@@ -32,7 +33,7 @@ server.use(
 );
 
 server.use(express.json()); // to parse req.body
-server.use("/products", productsRouter.router);
+server.use("/products", isAuth, productsRouter.router); // we can also use JWT Token
 server.use("/brands", brandsRouter.router);
 server.use("/categories", categoriesRouter.router);
 server.use("/users", usersRouter.router);
@@ -45,16 +46,24 @@ passport.use(
   new LocalStrategy(async function (username, password, done) {
     try {
       const user = await User.findOne({ email: username }).exec();
-      console.log({ user });
       if (!user) {
         done(null, false, { message: "Invalid Credentials" });
-      } else if (user.password === password) {
-        done(null, user);
-      } else {
-        done(null, false, { message: "Invalid Credentials" });
       }
+      crypto.pbkdf2(
+        password,
+        user.salt,
+        310000,
+        32,
+        "sha256",
+        async function (err, hashedPassword) {
+          if (!crypto.timingSafeEqual(user.password, hashedPassword)) {
+            return done(null, false, { message: "Invalid Credentials" });
+          }
+          done(null, user);
+        }
+      );
     } catch (err) {
-      res.status(400).json(err);
+      done(err);
     }
   })
 );
@@ -84,6 +93,14 @@ main().catch((err) => console.log(err));
 async function main() {
   await mongoose.connect("mongodb://127.0.0.1:27017/ecommerce");
   console.log("MongoDB Database Connected");
+}
+
+function isAuth(req, res, done) {
+  if (req.user) {
+    done();
+  } else {
+    res.send(401);
+  }
 }
 
 const PORT = 8080;
