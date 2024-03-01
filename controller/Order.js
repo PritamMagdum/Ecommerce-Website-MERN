@@ -37,7 +37,8 @@ exports.deleteOrder = async (req, res) => {
 
 exports.updateOrder = async (req, res) => {
   const { id } = req.params;
-
+  console.log("request params -->", req.params);
+  console.log("request body -->", req.body);
   try {
     const order = await Order.findByIdAndUpdate(id, req.body, {
       new: true,
