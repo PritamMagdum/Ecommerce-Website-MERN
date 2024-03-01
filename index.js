@@ -7,6 +7,7 @@ const categoriesRouter = require("./routes/Categories");
 const usersRouter = require("./routes/Users");
 const authRouter = require("./routes/Auth");
 const cartRouter = require("./routes/Carts");
+const ordersRouter = require("./routes/Orders");
 
 // Middlewares
 const cors = require("cors");
@@ -22,6 +23,7 @@ server.use("/categories", categoriesRouter.router);
 server.use("/users", usersRouter.router);
 server.use("/auth", authRouter.router);
 server.use("/cart", cartRouter.router);
+server.use("/orders", ordersRouter.router);
 
 server.get("/", (req, res) => {
   res.json({ status: "success" });

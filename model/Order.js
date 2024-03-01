@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const orderSchema = new Schema({
-  items: [{ type: [Schema.Types.Mixed], required: true }],
+  items: { type: [Schema.Types.Mixed], required: true },
   totalAmount: { type: Number },
   totalItems: { type: Number },
   user: { type: Schema.Types.ObjectId, ref: "User", required: true },
