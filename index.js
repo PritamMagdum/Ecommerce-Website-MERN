@@ -15,6 +15,7 @@ const authRouter = require("./routes/Auth");
 const cartRouter = require("./routes/Carts");
 const ordersRouter = require("./routes/Orders");
 const { User } = require("./model/User");
+const { isAuth, sanitizeUser } = require("./services/common");
 
 // Middlewares
 server.use(
@@ -59,7 +60,7 @@ passport.use(
           if (!crypto.timingSafeEqual(user.password, hashedPassword)) {
             return done(null, false, { message: "Invalid Credentials" });
           }
-          done(null, user);
+          done(null, sanitizeUser(user));
         }
       );
     } catch (err) {
@@ -84,23 +85,11 @@ passport.deserializeUser(function (user, cb) {
   });
 });
 
-server.get("/", (req, res) => {
-  res.json({ status: "success" });
-});
-
 main().catch((err) => console.log(err));
 
 async function main() {
   await mongoose.connect("mongodb://127.0.0.1:27017/ecommerce");
   console.log("MongoDB Database Connected");
-}
-
-function isAuth(req, res, done) {
-  if (req.user) {
-    done();
-  } else {
-    res.send(401);
-  }
 }
 
 const PORT = 8080;
