@@ -1,9 +1,9 @@
 const { Order } = require("../model/Order");
 
 exports.fetchOrdersByUser = async (req, res) => {
-  const { user } = req.query;
+  const { userId } = req.params;
   try {
-    const orders = await Order.find({ user: user });
+    const orders = await Order.find({ user: userId });
     //   .populate("user")
     //   .populate("product");
     res.status(200).json(orders);
@@ -43,6 +43,38 @@ exports.updateOrder = async (req, res) => {
       new: true,
     });
     res.status(201).json(order);
+  } catch (err) {
+    res.status(400).json(err);
+  }
+};
+
+exports.fetchAllOrders = async (req, res) => {
+  // filter : {"category" : ["smartphone", "Laptops"]}
+  // pagination : {_page:1, _per_page:10}
+
+  let query = Order.find({});
+  let totalOrdersQuery = Order.find({});
+
+  if (req.query._sort && req.query._order) {
+    query = query.sort({ [req.query._sort]: req.query._order });
+  }
+
+  const totalDocs = await totalOrdersQuery.count().exec();
+  console.log({ totalDocs });
+
+  if (req.query._page && req.query._per_page) {
+    const pageSize = req.query._per_page;
+    const page = req.query._page;
+    query = query.skip(pageSize * (page - 1)).limit(pageSize);
+    // console.log("this is total -->", query);
+  }
+
+  try {
+    const docs = await query.exec();
+    // const result = await cart.populate("product");
+    res.set("X-Total-Count", totalDocs);
+    // console.log(docs);
+    res.status(200).json(docs);
   } catch (err) {
     res.status(400).json(err);
   }
