@@ -14,6 +14,7 @@ exports.fetchCartByUser = async (req, res) => {
 
 exports.addToCart = async (req, res) => {
   // This Product we have to get from API body
+  console.log("Request is -->", req.body);
   const cart = new Cart(req.body);
   try {
     const response = await cart.save();

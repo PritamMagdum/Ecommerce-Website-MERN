@@ -45,7 +45,7 @@ exports.fetchAllProducts = async (req, res) => {
     const pageSize = req.query._per_page;
     const page = req.query._page;
     query = query.skip(pageSize * (page - 1)).limit(pageSize);
-    console.log("this is total -->", query);
+    // console.log("this is total -->", query);
   }
 
   try {
