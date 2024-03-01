@@ -1,8 +1,10 @@
 const express = require("express");
 const server = express();
 const mongoose = require("mongoose");
-const passport = require("passport");
+const cors = require("cors");
 const session = require("express-session");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
 
 const productsRouter = require("./routes/Products");
 const brandsRouter = require("./routes/Brands");
@@ -11,6 +13,7 @@ const usersRouter = require("./routes/Users");
 const authRouter = require("./routes/Auth");
 const cartRouter = require("./routes/Carts");
 const ordersRouter = require("./routes/Orders");
+const { User } = require("./model/User");
 
 // Middlewares
 server.use(
@@ -18,18 +21,16 @@ server.use(
     secret: "keyboard cat",
     resave: false, // don't save session if unmodified
     saveUninitialized: false, // don't create session until something stored
-    store: new SQLiteStore({ db: "sessions.db", dir: "./var/db" }),
   })
 );
 server.use(passport.authenticate("session"));
 
-const cors = require("cors");
-const { User } = require("./model/User");
 server.use(
   cors({
     exposedHeaders: ["X-Total-Count"],
   })
 );
+
 server.use(express.json()); // to parse req.body
 server.use("/products", productsRouter.router);
 server.use("/brands", brandsRouter.router);
@@ -39,37 +40,36 @@ server.use("/auth", authRouter.router);
 server.use("/cart", cartRouter.router);
 server.use("/orders", ordersRouter.router);
 
-// Passport Strategies
+// Passport Strategy
 passport.use(
-  new LocalStrategy(function (username, password, done) {
-    User.findOne({ username: username }, function (err, user) {
-      if (err) {
-        return done(err);
-      }
+  new LocalStrategy(async function (username, password, done) {
+    try {
+      const user = await User.findOne({ email: username }).exec();
+      console.log({ user });
       if (!user) {
-        return done(null, false);
+        done(null, false, { message: "Invalid Credentials" });
+      } else if (user.password === password) {
+        done(null, user);
+      } else {
+        done(null, false, { message: "Invalid Credentials" });
       }
-      if (!user.verifyPassword(password)) {
-        return done(null, false);
-      }
-      return done(null, user);
-    });
+    } catch (err) {
+      res.status(400).json(err);
+    }
   })
 );
 
-// This creates session variable req.user on called from callbacks
+// create a session variable in cookies
 passport.serializeUser(function (user, cb) {
   process.nextTick(function () {
-    return cb(null, {
-      id: user.id,
-      username: user.username,
-      picture: user.picture,
-    });
+    console.log("serializaUser", user);
+    return cb(null, { id: user.id, role: user.role });
   });
 });
 
-// This changes session variable req.user  when called from authorized request
+// fetch a session variable in cookies
 passport.deserializeUser(function (user, cb) {
+  console.log("de-serializaUser", user);
   process.nextTick(function () {
     return cb(null, user);
   });
