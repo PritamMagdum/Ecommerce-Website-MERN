@@ -1,6 +1,8 @@
 const { User } = require("../model/User");
 const crypto = require("crypto");
 const { sanitizeUser } = require("../services/common");
+const jwt = require("jsonwebtoken");
+const SECRET_KEY = "SECRET_KEY";
 
 exports.createUser = async (req, res) => {
   // This Product we have to get from API body
@@ -20,7 +22,9 @@ exports.createUser = async (req, res) => {
           if (err) {
             res.status(400).json(err);
           } else {
-            res.status(201).json(sanitizeUser(doc));
+            const token = jwt.sign(sanitizeUser(doc), SECRET_KEY);
+            console.log("token is -->", token);
+            res.status(201).json(token);
           }
         });
       }
@@ -35,5 +39,5 @@ exports.loginUser = async (req, res) => {
 };
 
 exports.checkUser = async (req, res) => {
-  res.json(req.user);
+  res.json({ status: "success", user: req.user });
 };

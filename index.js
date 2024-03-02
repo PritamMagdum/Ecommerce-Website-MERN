@@ -6,6 +6,9 @@ const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const crypto = require("crypto");
+const JwtStrategy = require("passport-jwt").Strategy;
+const ExtractJwt = require("passport-jwt").ExtractJwt;
+const jwt = require("jsonwebtoken");
 
 const productsRouter = require("./routes/Products");
 const brandsRouter = require("./routes/Brands");
@@ -16,6 +19,12 @@ const cartRouter = require("./routes/Carts");
 const ordersRouter = require("./routes/Orders");
 const { User } = require("./model/User");
 const { isAuth, sanitizeUser } = require("./services/common");
+
+const SECRET_KEY = "SECRET_KEY";
+// JWT Options
+const opts = {};
+opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.secretOrKey = SECRET_KEY;
 
 // Middlewares
 server.use(
@@ -34,19 +43,25 @@ server.use(
 );
 
 server.use(express.json()); // to parse req.body
-server.use("/products", isAuth, productsRouter.router); // we can also use JWT Token
-server.use("/brands", brandsRouter.router);
-server.use("/categories", categoriesRouter.router);
-server.use("/users", usersRouter.router);
+server.use("/products", isAuth(), productsRouter.router); // we can also use JWT Token
+server.use("/brands", isAuth(), brandsRouter.router);
+server.use("/categories", isAuth(), categoriesRouter.router);
+server.use("/users", isAuth(), usersRouter.router);
 server.use("/auth", authRouter.router);
-server.use("/cart", cartRouter.router);
-server.use("/orders", ordersRouter.router);
+server.use("/cart", isAuth(), cartRouter.router);
+server.use("/orders", isAuth(), ordersRouter.router);
 
 // Passport Strategy
 passport.use(
-  new LocalStrategy(async function (username, password, done) {
+  "local",
+  new LocalStrategy({ usernameField: "email" }, async function (
+    email,
+    password,
+    done
+  ) {
     try {
-      const user = await User.findOne({ email: username }).exec();
+      const user = await User.findOne({ email: email }).exec();
+      console.log(email, password, user);
       if (!user) {
         done(null, false, { message: "Invalid Credentials" });
       }
@@ -60,11 +75,30 @@ passport.use(
           if (!crypto.timingSafeEqual(user.password, hashedPassword)) {
             return done(null, false, { message: "Invalid Credentials" });
           }
-          done(null, sanitizeUser(user));
+          const token = jwt.sign(sanitizeUser(user), SECRET_KEY);
+          done(null, token);
         }
       );
     } catch (err) {
       done(err);
+    }
+  })
+);
+
+// JWT Strategy
+passport.use(
+  "jwt",
+  new JwtStrategy(opts, async function (jwt_payload, done) {
+    console.log({ jwt_payload });
+    try {
+      const user = await User.findOne({ id: jwt_payload.sub });
+      if (user) {
+        return done(null, sanitizeUser(user));
+      } else {
+        return done(null, false);
+      }
+    } catch (err) {
+      return done(err, false);
     }
   })
 );
