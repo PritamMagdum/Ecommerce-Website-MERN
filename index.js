@@ -8,6 +8,7 @@ const LocalStrategy = require("passport-local").Strategy;
 const crypto = require("crypto");
 const JwtStrategy = require("passport-jwt").Strategy;
 const ExtractJwt = require("passport-jwt").ExtractJwt;
+const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 
 const productsRouter = require("./routes/Products");
@@ -18,16 +19,21 @@ const authRouter = require("./routes/Auth");
 const cartRouter = require("./routes/Carts");
 const ordersRouter = require("./routes/Orders");
 const { User } = require("./model/User");
-const { isAuth, sanitizeUser } = require("./services/common");
+const { isAuth, sanitizeUser, cookieExtractor } = require("./services/common");
 
 const SECRET_KEY = "SECRET_KEY";
 // JWT Options
+
+// opts.jwtFromRequest = cookieExtractor;
+
 const opts = {};
-opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+// opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+opts.jwtFromRequest = cookieExtractor;
 opts.secretOrKey = SECRET_KEY;
 
 // Middlewares
 server.use(express.static("build"));
+server.use(cookieParser());
 server.use(
   session({
     secret: "keyboard cat",
