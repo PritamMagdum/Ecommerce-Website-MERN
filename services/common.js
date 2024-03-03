@@ -14,7 +14,14 @@ exports.cookieExtractor = function (req) {
     token = req.cookies["jwt"];
   }
   // this token is for temporary testing purpose
+
+  // User Token
   // token =
-  //   "jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ZTJjMmE4NGE2Yzc5MTM4YTgwNmM2NSIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzA5MzY4ODIwfQ.0ihZGM8SFTY3JFb4BNDIjG8sumNzS-_Ean0MycfICmg; Path=/; Expires=Sat, 02 Mar 2024 09:40:20 GMT; HttpOnly";
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ZTQ0YWM0YjIxN2E2NTQ3Y2EzYTNjYyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzA5NDcwMjM3fQ.6budRYRoKNTnNclrvOnjwdiWQrrlWpcFhK1uCmfiBKA";
+
+  // Admin Token
+  token =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ZTQ0OWM1YjIxN2E2NTQ3Y2EzYTM5YiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTcwOTQ3MDg4MH0.-kYq_QTkpzogrCuKEJDOr0FdQS5wy-ob24YnxXFY1v8";
+
   return token;
 };
