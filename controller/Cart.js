@@ -12,6 +12,7 @@ exports.fetchCartByUser = async (req, res) => {
   }
 };
 
+// Fixed the add to cart Endpoint in Frontend
 exports.addToCart = async (req, res) => {
   const { id } = req.user;
   console.log("Request is -->", id);
