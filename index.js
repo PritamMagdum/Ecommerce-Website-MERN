@@ -67,7 +67,7 @@ passport.use(
     done
   ) {
     try {
-      const user = await User.findOne({ email: email }).exec();
+      const user = await User.findOne({ email: email });
       console.log(email, password, user);
       if (!user) {
         done(null, false, { message: "Invalid Credentials" });
@@ -98,7 +98,7 @@ passport.use(
   new JwtStrategy(opts, async function (jwt_payload, done) {
     console.log({ jwt_payload });
     try {
-      const user = await User.findOne({ id: jwt_payload.sub });
+      const user = await User.findById(jwt_payload.id);
       if (user) {
         return done(null, sanitizeUser(user));
       } else {

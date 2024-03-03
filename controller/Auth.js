@@ -41,6 +41,7 @@ exports.createUser = async (req, res) => {
 };
 
 exports.loginUser = async (req, res) => {
+  console.log("loginUser req.user is -->", req.user);
   res
     .cookie("jwt", req.user.token, {
       expires: new Date(Date.now() + 3600000),
@@ -51,5 +52,6 @@ exports.loginUser = async (req, res) => {
 };
 
 exports.checkUser = async (req, res) => {
+  console.log("checkUser req.user is-->", req.user);
   res.json({ status: "success", user: req.user });
 };
