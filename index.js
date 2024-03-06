@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const server = express();
 const mongoose = require("mongoose");
@@ -21,22 +22,54 @@ const ordersRouter = require("./routes/Orders");
 const { User } = require("./model/User");
 const { isAuth, sanitizeUser, cookieExtractor } = require("./services/common");
 
-const SECRET_KEY = "SECRET_KEY";
-// JWT Options
+// This is your Stripe CLI webhook secret for testing your endpoint locally.
+const endpointSecret = process.env.ENDPOINT_SECRET;
 
+server.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  (request, response) => {
+    const sig = request.headers["stripe-signature"];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    } catch (err) {
+      response.status(400).send(`Webhook Error: ${err.message}`);
+      return;
+    }
+
+    // Handle the event
+    switch (event.type) {
+      case "payment_intent.succeeded":
+        const paymentIntentSucceeded = event.data.object;
+        console.log({ paymentIntentSucceeded });
+        // Then define and call a function to handle the event payment_intent.succeeded
+        break;
+      // ... handle other event types
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+    }
+
+    // Return a 200 response to acknowledge receipt of the event
+    response.send();
+  }
+);
+// console.log(process.env);
 // opts.jwtFromRequest = cookieExtractor;
 
 const opts = {};
 // opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
 opts.jwtFromRequest = cookieExtractor;
-opts.secretOrKey = SECRET_KEY;
+opts.secretOrKey = process.env.JWT_SECRET_KEY;
 
 // Middlewares
 server.use(express.static("build"));
 server.use(cookieParser());
 server.use(
   session({
-    secret: "keyboard cat",
+    secret: process.env.SESSION_KEY,
     resave: false, // don't save session if unmodified
     saveUninitialized: false, // don't create session until something stored
   })
@@ -50,6 +83,7 @@ server.use(
 );
 
 server.use(express.json()); // to parse req.body
+server.use(express.raw({ type: "*/*" }));
 server.use("/products", isAuth(), productsRouter.router); // we can also use JWT Token
 server.use("/brands", isAuth(), brandsRouter.router);
 server.use("/categories", isAuth(), categoriesRouter.router);
@@ -82,8 +116,11 @@ passport.use(
           if (!crypto.timingSafeEqual(user.password, hashedPassword)) {
             return done(null, false, { message: "Invalid Credentials" });
           }
-          const token = jwt.sign(sanitizeUser(user), SECRET_KEY);
-          done(null, { id: user.id, role: user.role });
+          const token = jwt.sign(
+            sanitizeUser(user),
+            process.env.JWT_SECRET_KEY
+          );
+          done(null, { id: user.id, role: user.role, token });
         }
       );
     } catch (err) {
@@ -128,9 +165,7 @@ passport.deserializeUser(function (user, cb) {
 
 // Stripe Payment Intent
 // This is your test secret API key.
-const stripe = require("stripe")(
-  "sk_test_51OrFmISCebnZsCxyPStpdor74q33aATu56GOYL8ZnonPl3JTlduURurAzgkNBa6PpqcE1rkNWOqIoMXlvtU9HOJB00SDLD0u8X"
-);
+const stripe = require("stripe")(process.env.STRIP_SERVER_SECRET_KEY);
 
 server.post("/create-checkout-session", async (req, res) => {
   const { products } = req.body;
@@ -173,11 +208,10 @@ server.post("/create-checkout-session", async (req, res) => {
 main().catch((err) => console.log(err));
 
 async function main() {
-  await mongoose.connect("mongodb://127.0.0.1:27017/ecommerce");
+  await mongoose.connect(process.env.MONGODB_URL);
   console.log("MongoDB Database Connected");
 }
 
-const PORT = 8080;
-server.listen(PORT, () => {
-  console.log(`Server Started at ${PORT}`);
+server.listen(process.env.PORT, () => {
+  console.log(`Server Started at ${process.env.PORT}`);
 });
