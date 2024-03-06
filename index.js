@@ -127,32 +127,47 @@ passport.deserializeUser(function (user, cb) {
 });
 
 // Stripe Payment Intent
-
 // This is your test secret API key.
 const stripe = require("stripe")(
-  "sk_test_51OqeJySEpPoTkUObb4UyaYPUcqAAP4A4oVGeAYdwLfQBiIOs7OxInXrWjEtZ9JSIWt3ZLS9SOZQs3rO3z2mPkti8004HknipWQ"
+  "sk_test_51OrFmISCebnZsCxyPStpdor74q33aATu56GOYL8ZnonPl3JTlduURurAzgkNBa6PpqcE1rkNWOqIoMXlvtU9HOJB00SDLD0u8X"
 );
 
-const calculateOrderAmount = (items) => {
-  return 1400;
-};
+server.post("/create-checkout-session", async (req, res) => {
+  const { products } = req.body;
+  console.log("products is==>", products);
 
-server.post("/create-payment-intent", async (req, res) => {
-  const { items } = req.body;
-
-  // Create a PaymentIntent with the order amount and currency
-  const paymentIntent = await stripe.paymentIntents.create({
-    amount: calculateOrderAmount(items),
-    currency: "inr",
-    // In the latest version of the API, specifying the `automatic_payment_methods` parameter is optional because Stripe enables its functionality by default.
-    automatic_payment_methods: {
-      enabled: true,
+  const linItems = products.map((product) => ({
+    price_data: {
+      currency: "usd",
+      product_data: {
+        name: product.product.title,
+      },
+      unit_amount:
+        Math.round(
+          product.product.price *
+            (1 - product.product.discountPercentage / 100) *
+            product.quantity
+        ) * 100,
     },
+    quantity: product.quantity,
+  }));
+
+  const session = await stripe.checkout.sessions.create({
+    payment_method_types: ["card"],
+    line_items: linItems,
+    custom_fields: [
+      {
+        key: "address",
+        label: { type: "custom", custom: "Address" },
+        type: "text",
+      },
+    ],
+    mode: "payment",
+    success_url: `http://localhost:3000/order-success/${5454}`,
+    cancel_url: "http://locahost:3000/",
   });
 
-  res.send({
-    clientSecret: paymentIntent.client_secret,
-  });
+  res.json({ id: session.id });
 });
 
 main().catch((err) => console.log(err));
