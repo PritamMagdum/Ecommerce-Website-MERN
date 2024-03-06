@@ -168,7 +168,7 @@ passport.deserializeUser(function (user, cb) {
 const stripe = require("stripe")(process.env.STRIP_SERVER_SECRET_KEY);
 
 server.post("/create-checkout-session", async (req, res) => {
-  const { products } = req.body;
+  const { products, id } = req.body;
   console.log("products is==>", products);
 
   const linItems = products.map((product) => ({
@@ -176,6 +176,7 @@ server.post("/create-checkout-session", async (req, res) => {
       currency: "usd",
       product_data: {
         name: product.product.title,
+        images: [product.product.thumbnail],
       },
       unit_amount:
         Math.round(
@@ -190,15 +191,8 @@ server.post("/create-checkout-session", async (req, res) => {
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
     line_items: linItems,
-    custom_fields: [
-      {
-        key: "address",
-        label: { type: "custom", custom: "Address" },
-        type: "text",
-      },
-    ],
     mode: "payment",
-    success_url: `http://localhost:3000/order-success/${5454}`,
+    success_url: `http://localhost:3000/order-success/${id}`,
     cancel_url: "http://locahost:3000/",
   });
 
