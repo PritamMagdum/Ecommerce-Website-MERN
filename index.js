@@ -194,8 +194,8 @@ server.post("/create-checkout-session", async (req, res) => {
     payment_method_types: ["card"],
     line_items: linItems,
     mode: "payment",
-    success_url: `http://localhost:3000/order-success/${id}`,
-    cancel_url: "http://locahost:3000/",
+    success_url: `/order-success/${id}`,
+    cancel_url: "/locahost:3000/",
   });
 
   res.json({ id: session.id });
