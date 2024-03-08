@@ -21,6 +21,7 @@ const cartRouter = require("./routes/Carts");
 const ordersRouter = require("./routes/Orders");
 const { User } = require("./model/User");
 const { isAuth, sanitizeUser, cookieExtractor } = require("./services/common");
+const path = require("path");
 
 // This is your Stripe CLI webhook secret for testing your endpoint locally.
 const endpointSecret = process.env.ENDPOINT_SECRET;
@@ -65,7 +66,7 @@ opts.jwtFromRequest = cookieExtractor;
 opts.secretOrKey = process.env.JWT_SECRET_KEY;
 
 // Middlewares
-server.use(express.static("build"));
+server.use(express.static(path.resolve(__dirname, "build")));
 server.use(cookieParser());
 server.use(
   session({
@@ -179,11 +180,12 @@ server.post("/create-checkout-session", async (req, res) => {
         images: [product.product.thumbnail],
       },
       unit_amount:
+        // product.product.discountPercentage * 100,
         Math.round(
           product.product.price *
             (1 - product.product.discountPercentage / 100) *
-            product.quantity
-        ) * 100,
+            100
+        ),
     },
     quantity: product.quantity,
   }));

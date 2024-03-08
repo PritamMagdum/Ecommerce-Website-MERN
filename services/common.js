@@ -16,8 +16,8 @@ exports.cookieExtractor = function (req) {
   // this token is for temporary testing purpose
 
   // User Token
-  token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ZTQ0YWM0YjIxN2E2NTQ3Y2EzYTNjYyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzA5NDcwMjM3fQ.6budRYRoKNTnNclrvOnjwdiWQrrlWpcFhK1uCmfiBKA";
+  // token =
+  //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1ZTQ0YWM0YjIxN2E2NTQ3Y2EzYTNjYyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzA5NDcwMjM3fQ.6budRYRoKNTnNclrvOnjwdiWQrrlWpcFhK1uCmfiBKA";
 
   // Admin Token
   // token =
