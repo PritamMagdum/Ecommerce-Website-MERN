@@ -91,7 +91,13 @@ server.use("/categories", isAuth(), categoriesRouter.router);
 server.use("/users", isAuth(), usersRouter.router);
 server.use("/auth", authRouter.router);
 server.use("/cart", isAuth(), cartRouter.router);
+
 server.use("/orders", isAuth(), ordersRouter.router);
+
+// The above line is helps to re-route home page if not any route found
+server.get("*", (req, res) =>
+  res.sendFile(path.resolve("build", "index.html"))
+);
 
 // Passport Strategy
 passport.use(
@@ -194,6 +200,9 @@ server.post("/create-checkout-session", async (req, res) => {
     payment_method_types: ["card"],
     line_items: linItems,
     mode: "payment",
+    metadata: {
+      id,
+    },
     success_url: `https://mern-ecommerce-two-jet.vercel.app/order-success/${id}`,
     cancel_url: "https://mern-ecommerce-two-jet.vercel.app/",
   });
