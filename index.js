@@ -194,8 +194,8 @@ server.post("/create-checkout-session", async (req, res) => {
     payment_method_types: ["card"],
     line_items: linItems,
     mode: "payment",
-    success_url: `/order-success/${id}`,
-    cancel_url: "/locahost:3000/",
+    success_url: `https://mern-ecommerce-two-jet.vercel.app/order-success/${id}`,
+    cancel_url: "https://mern-ecommerce-two-jet.vercel.app/",
   });
 
   res.json({ id: session.id });
