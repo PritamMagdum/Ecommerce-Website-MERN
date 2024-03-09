@@ -203,8 +203,8 @@ server.post("/create-checkout-session", async (req, res) => {
     metadata: {
       id,
     },
-    success_url: `https://mern-ecommerce-two-jet.vercel.app/order-success/${id}`,
-    cancel_url: "https://mern-ecommerce-two-jet.vercel.app/",
+    success_url: `https://magdum-ecommerce-pritam-magdum.vercel.app/order-success/${id}`,
+    cancel_url: "https://magdum-ecommerce-pritam-magdum.vercel.app/",
   });
 
   res.json({ id: session.id });
