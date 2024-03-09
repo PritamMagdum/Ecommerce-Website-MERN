@@ -187,11 +187,10 @@ server.post("/create-checkout-session", async (req, res) => {
       },
       unit_amount:
         // product.product.discountPercentage * 100,
-        Math.round(
-          product.product.price *
-            (1 - product.product.discountPercentage / 100) *
-            100
-        ),
+
+        product.product.price *
+        (1 - product.product.discountPercentage / 100) *
+        100,
     },
     quantity: product.quantity,
   }));
